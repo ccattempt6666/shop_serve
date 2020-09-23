@@ -59,11 +59,12 @@ export default {
         // }
         // })
         axios.post('http://localhost:8888/api/private/v1/login', this.form).then(res => {
-          const { meta } = res.data
+          const { meta, data } = res.data
           if (meta.status === 200) {
             // console.log(meta.msg)
             // this.$message(meta.msg)
             // this.$message.success(meta.msg)
+            localStorage.setItem('token', data.token)
             this.$message({
               type: 'success',
               message: meta.msg,
