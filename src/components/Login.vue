@@ -44,7 +44,7 @@ export default {
     login () {
       this.$refs.form.validate((res) => {
         if (!res) return
-        console.log('发送ajax')
+        // console.log('发送ajax')
         // axios({
         // method: 'post',
         // url: 'http://localhost:8888/api/private/v1/login',
@@ -87,7 +87,7 @@ export default {
 .login {
   overflow: hidden;
   height: 100%;
-  background: #2d432d;
+  background: #2d434c;
   .el-form {
     position: relative;
     width: 400px;
