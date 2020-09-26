@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   data () {
     return {
@@ -42,7 +41,7 @@ export default {
       this.$refs.form.resetFields()
     },
     login () {
-      this.$refs.form.validate((res) => {
+      this.$refs.form.validate(async res => {
         if (!res) return
         // console.log('发送ajax')
         // axios({
@@ -58,25 +57,41 @@ export default {
         // console.log(meta.msg)
         // }
         // })
-        axios.post('http://localhost:8888/api/private/v1/login', this.form).then(res => {
-          const { meta, data } = res.data
+        // this.$axios.post('login', this.form).then(res => {
+        //   const { meta, data } = res
+        //   if (meta.status === 200) {
+        //     // console.log(meta.msg)
+        //     // this.$message(meta.msg)
+        //     // this.$message.success(meta.msg)
+        //     localStorage.setItem('token', data.token)
+        //     this.$message({
+        //       type: 'success',
+        //       message: meta.msg,
+        //       duration: 1000
+        //     })
+        //     // this.$router.push('/index')
+        //     this.$router.push({ name: 'index' })
+        //   } else {
+        //     // console.log(meta.msg)
+        //     this.$message.error(meta.msg)
+        //   }
+        // })
+        try {
+          const { meta, data } = await this.$axios.post('login', this.form)
           if (meta.status === 200) {
-            // console.log(meta.msg)
-            // this.$message(meta.msg)
-            // this.$message.success(meta.msg)
             localStorage.setItem('token', data.token)
             this.$message({
               type: 'success',
               message: meta.msg,
               duration: 1000
             })
-            // this.$router.push('/index')
-            this.$router.push({ name: 'index' })
+            this.$router.push('/index')
           } else {
-            // console.log(meta.msg)
             this.$message.error(meta.msg)
           }
-        })
+        } catch (e) {
+          console.log(e)
+        }
       })
     }
   }
