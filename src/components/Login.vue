@@ -3,10 +3,11 @@
   <el-form ref="form" status-icon :rules="rules" :model="form" label-width="80px">
     <img class="logo" src="../assets/avatar.jpg" alt="加载失败">
     <el-form-item prop="username" label="用户名：">
-      <el-input placeholder="请输入用户名" v-model="form.username"></el-input>
+      <!-- native 监听组件根元素的原生事件 -->
+      <el-input @keyup.enter.native="login" placeholder="请输入用户名" v-model="form.username"></el-input>
     </el-form-item>
     <el-form-item prop="password" label="密码：">
-      <el-input placeholder="请输入密码" type="password" v-model="form.password"></el-input>
+      <el-input @keyup.enter.native="login" placeholder="请输入密码" type="password" v-model="form.password"></el-input>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="login">登录</el-button>
