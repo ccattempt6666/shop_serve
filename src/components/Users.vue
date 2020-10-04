@@ -30,7 +30,6 @@
     <el-table-column
       label="用户状态">
       <template v-slot:default="scope">
-        <!-- {{ scope.row.mg_state }} -->
         <el-switch
           @change="changeState(scope.row.id, scope.row.mg_state)"
           v-model="scope.row.mg_state"
@@ -41,10 +40,10 @@
     </el-table-column>
     <el-table-column
       label="操作">
-      <template v-slot:default="scope">
-        <el-button @click="showEditDialog(scope.row)" size="small" plain type="primary" icon="el-icon-edit"></el-button>
-        <el-button @click="delUser(scope.row.id)" size="small" plain type="danger" icon="el-icon-delete"></el-button>
-        <el-button size="small" plain type="success" icon="el-icon-check">分配角色</el-button>
+      <template v-slot:default="{ row }">
+        <el-button @click="showEditDialog(row)" size="small" plain type="primary" icon="el-icon-edit"></el-button>
+        <el-button @click="delUser(row.id)" size="small" plain type="danger" icon="el-icon-delete"></el-button>
+        <el-button @click="showAssignDialog(row)" size="small" plain type="success" icon="el-icon-check">分配角色</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -104,6 +103,32 @@
       <el-button type="primary" @click="editUser(editForm)">确 定</el-button>
     </span>
   </el-dialog>
+  <!-- 分配角色 -->
+  <el-dialog
+    @close="closeDialog"
+    title="分配角色"
+    :visible.sync="assignVisible"
+    width="40%">
+    <el-form :model="assignForm" label-width="80px">
+      <el-form-item label="用户名">
+        <el-tag type="info">{{ assignForm.username }}</el-tag>
+      </el-form-item>
+      <el-form-item label="角色列表">
+        <el-select v-model="assignForm.rid" placeholder="请选择">
+          <el-option
+          v-for="item in options"
+          :key="item.id"
+          :label="item.roleName"
+          :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="assignVisible = false">取 消</el-button>
+      <el-button @click="assignRight" type="primary">分 配</el-button>
+    </span>
+  </el-dialog>
 </div>
 </template>
 
@@ -118,6 +143,7 @@ export default {
       userlist: [],
       dialogVisible: false,
       editVisible: false,
+      assignVisible: false,
       form: {
         username: '',
         password: '',
@@ -136,7 +162,13 @@ export default {
         ],
         email: { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] },
         mobile: { pattern: /^1[1-9]\d{9}$/, message: '请输入正确的手机号码', trigger: ['blur', 'change'] }
-      }
+      },
+      assignForm: {
+        username: '',
+        id: '',
+        rid: ''
+      },
+      options: []
     }
   },
   created () {
@@ -285,6 +317,37 @@ export default {
         }
       } catch (e) {
         console.log(e)
+      }
+    },
+    async showAssignDialog (row) {
+      this.assignVisible = true
+      this.assignForm.username = row.username
+      this.assignForm.id = row.id
+      const res = await this.$axios.get(`users/${row.id}`)
+      if (res.meta.status === 200) {
+        const rid = res.data.rid
+        this.assignForm.rid = rid === -1 ? '' : rid
+      }
+      const { meta, data } = await this.$axios.get('roles')
+      if (meta.status === 200) {
+        this.options = data
+      } else {
+        this.$message.error(meta.msg)
+      }
+    },
+    async assignRight () {
+      const { rid, id } = this.assignForm
+      if (!rid) {
+        return this.$message.error('请选择角色')
+      } else {
+        const res = await this.$axios.put(`users/${id}/role`, { rid })
+        if (res.meta.status === 200) {
+          this.$message.success(res.meta.msg)
+          this.assignVisible = false
+          this.getUsersList()
+        } else {
+          this.$message.error(res.meta.msg)
+        }
       }
     }
   },

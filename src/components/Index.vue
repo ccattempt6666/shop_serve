@@ -15,33 +15,20 @@
       <el-aside width="200px">
         <el-menu
           router
+          :default-active="defaultActive"
           unique-opened
           background-color="#545c64"
           text-color="#fff"
           active-text-color="#ffd04b">
-          <el-submenu index="1">
+          <el-submenu :index="menu.path" v-for="menu in navList" :key="menu.id">
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{ menu.authName }}</span>
             </template>
-            <el-menu-item index="users">
+            <el-menu-item :index="menuitem.path" v-for="menuitem in menu.children" :key="menuitem.id">
               <i class="el-icon-menu"></i>
-              <span>用户列表</span>
+              <span>{{ menuitem.authName }}</span>
               </el-menu-item>
-          </el-submenu>
-          <el-submenu index="2">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>权限管理</span>
-            </template>
-            <el-menu-item index="roles">
-              <i class="el-icon-menu"></i>
-              <span>角色列表</span>
-            </el-menu-item>
-            <el-menu-item index="rights">
-              <i class="el-icon-menu"></i>
-              <span>权限列表</span>
-            </el-menu-item>
           </el-submenu>
         </el-menu>
       </el-aside>
@@ -54,6 +41,29 @@
 
 <script>
 export default {
+  data () {
+    return {
+      navList: []
+    }
+  },
+  async created () {
+    try {
+      // 获取左侧列表清单
+      const { meta, data } = await this.$axios.get('menus')
+      if (meta.status === 200) {
+        this.navList = data
+      } else {
+        this.$message.error(meta.msg)
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  },
+  computed: {
+    defaultActive () {
+      return this.$route.path.slice(1)
+    }
+  },
   methods: {
     exit () {
       this.$confirm('您确认要退出吗？', '提示', {
