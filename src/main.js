@@ -4,8 +4,19 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import router from './router'
 import axios from 'axios'
+import VueQuillEditor from 'vue-quill-editor'
+import moment from 'moment'
+
+// require styles
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 
 Vue.use(ElementUI)
+Vue.use(VueQuillEditor)
+
+// 定义全局的过滤器
+Vue.filter('dateFomate', val => moment(val * 1000).format('YYYY年MM月DD日 HH:mm:ss'))
 
 Vue.prototype.$axios = axios
 axios.defaults.baseURL = 'http://localhost:8888/api/private/v1/'
